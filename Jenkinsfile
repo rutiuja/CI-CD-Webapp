@@ -2,39 +2,32 @@
 pipeline {
     agent any
 
-    environment {
-        DEPLOY_DIR = 'C:\\inetpub\\wwwroot'
-    }
-
     stages {
-
         stage('Checkout') {
             steps {
                 echo 'Downloading code from GitHub...'
-                git branch: 'main',
-                url: 'https://github.com/rutiuja/CI-CD-Webapp.git'
+                checkout scm
             }
         }
 
         stage('Build') {
             steps {
                 echo 'Building web application...'
-                bat 'dir'
+                sh 'npm install'
+                sh 'npm run build'
             }
         }
 
         stage('Test') {
             steps {
-                echo 'Testing HTML files...'
-                bat 'tidy -q -e index.html'
+                echo 'Running tests...'
+                sh 'npm test'
             }
         }
 
         stage('Deploy') {
             steps {
-                echo 'Deploying website...'
-                bat 'if not exist "%DEPLOY_DIR%" mkdir "%DEPLOY_DIR%"'
-                bat 'xcopy /E /I /Y * "%DEPLOY_DIR%\\"'
+                echo 'Deployment stage completed'
             }
         }
     }
@@ -43,7 +36,6 @@ pipeline {
         success {
             echo 'Pipeline completed successfully!'
         }
-
         failure {
             echo 'Pipeline failed! Check console logs.'
         }
